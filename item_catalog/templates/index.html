@@ -1,0 +1,54 @@
+{% extends "_base.html" %}
+{% block title %}{{ cat_name }} Items{% endblock %}
+
+{% block content %}
+    <div class="columns is-mobile">
+      <div class="column is-hidden-mobile is-2-tablet">
+        <aside class="menu">
+          <p class="menu-label">
+            Categories
+          </p>
+          <ul class="menu-list">
+            {% for cat in categories %}
+            <li>
+              <a {{ 'class="is-active"'|safe if cat.name == cat_name }} href="/catalog/{{ cat.name }}">
+                {{ cat.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </aside>
+      </div>
+      <div class="column">
+        <h2 class="title is-2">
+          {{ cat_name }} Items ({{ items|length }} items)
+        </h2>
+        <div class="columns is-multiline is-mobile">
+          {% for item in items %}
+          <div class="column">
+            <div class="box">
+              <div class="content">
+                <p>
+                  <span class="level is-mobile">
+                    <span class="level-left">
+                      <span class="level-item">
+                        <strong>{{ item[0].name }}</strong>
+                      </span>
+                    </span>
+                    <span class="level-ritht">
+                      <span class="level-item tag is-info">{{ item[1].name }}</span>
+                    </span>
+                  </span>
+                  {{ item[0].desc|truncate(50) }}
+                </p>
+              </div>
+              <div class="level">
+                <a class="level-item button is-primary is-outlined" href="/catalog/{{ item[1].name }}/{{ item[0].name }}">Open</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+{% endblock %}

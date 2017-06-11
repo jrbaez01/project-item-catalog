@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+{% block title %}{{ cat_name }} Items{% endblock %}
+
+{% block content %}
+<form method="post">
+  <div class="field">
+    <label class="label">Title</label>
+    <p class="control">
+      <input class="input" type="text" placeholder="Insert Title" name="item_name" value="{{ item.name}}">
+    </p>
+  </div>
+
+  <div class="field">
+    <label class="label">Description</label>
+    <p class="control">
+      <textarea class="textarea" placeholder="Insert description." name="item_desc">{{ item.desc}}</textarea>
+    </p>
+  </div>
+
+  <div class="field">
+    <label class="label">Category</label>
+    <p class="control">
+      <span class="select">
+        <select name="cat">
+          {% for category in categories %}
+          <option {{ "selected" if cat_name == category.name }} value="{{ category.id }}|{{ category.name }}">{{ category.name }}</option>
+          {% endfor %}
+          }
+        </select>
+      </span>
+    </p>
+  </div>
+
+  <div class="field is-grouped">
+    <p class="control">
+      <button class="button is-primary">Submit</button>
+    </p>
+    <p class="control">
+      <a class="button is-link" href="{{ url_for('item', cat_name=cat_name, item_name=item.name) }}">Cancel</a>
+    </p>
+    <p class="control">
+      <a class="button is-danger" href="{{ url_for('item_remove', cat_name=cat_name, item_name=item.name) }}">Delete</a>
+    </p>
+  </div>
+</form>
+{% endblock %}
