@@ -1,51 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	{% block head %}
-	<title>{% block title %}{% endblock %} - Junior's Catalog</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
-	{% endblock %}
+  {% block head %}
+  <title>{% block title %}{% endblock %} - Junior's Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  {% endblock %}
 </head>
 <body>
-	<header class="header">
-		<nav class="nav has-shadow">
-			<span class="nav-toggle">
-				<span></span>
-				<span></span>
-				<span></span>
-			</span>
-			<div class="nav-left">
-				<a href="/" class="nav-item">
-					<h1 class="title">CATALOG APP</h1>
-				</a>
-			</div>
-			<div class="nav-right nav-menu">
-				<a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
-				<a class="nav-item is-tab">
-					<figure class="image is-16x16" style="margin-right: 8px;">
-						<img src="http://bulma.io/images/jgthms.png">
-					</figure>
-					Profile
-				</a>
-				<a class="nav-item is-tab">Log out</a>
-			</div>
-		</nav>
-	</header>
+  <header class="header">
+    <nav class="nav has-shadow">
+      <span class="nav-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+      <div class="nav-left">
+        <a href="/" class="nav-item">
+          <h1 class="title">CATALOG APP</h1>
+        </a>
+      </div>
+      <div class="nav-right nav-menu">
+        <a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
+        {% if session.loggedin %}
+        <a href="/gdisconnect" class="nav-item is-tab">
+          <figure class="image is-16x16" style="margin-right: 8px;">
+            <img src="{{ session.picture }}">
+          </figure>
+          {{ session.username }} (Logout)
+        </a>
+        {% else %}
+        <a href="login" class="nav-item is-tab">Login</a>
+        {% endif %}
+      </div>
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="section">
+        <ul class="container notifications">
+        {% for category, message in messages %}
+          <li class="notification is-{{ category }}">
+          <button class="delete"></button>
+          {{ message }}
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    {% endwith %}
+  </header>
 
-	<main class="section">
-		<div class="container">
-		{% block content %}{% endblock %}
-		</div>
-	</main>
+  <main class="section">
+    <div class="container">
+    {% block content %}{% endblock %}
+    </div>
+  </main>
 
-	<footer class="footer">
-		{% block footer %}
-		<hr>
-		&copy; Copyright 2017 by <a target="_blank" href="//github.com/jrbaez01">jrbaez01</a>
-		{% endblock %}
-	</footer>
+  <footer class="footer">
+    {% block footer %}
+    <hr>
+    &copy; Copyright 2017 by <a target="_blank" href="//github.com/jrbaez01">jrbaez01</a>
+    {% endblock %}
+  </footer>
 </body>
 </html>

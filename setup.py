@@ -7,5 +7,7 @@ setup(
      install_requires=[
         'flask',
         'SQLAlchemy',
+        'oauth2client',
+        'requests'
      ],
 )

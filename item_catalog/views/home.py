@@ -1,7 +1,7 @@
-from item_catalog.flask_app import app
 from flask import render_template, request, redirect, jsonify, url_for, flash
-from item_catalog.models import User, Category, Item
+from item_catalog.flask_app import app
 from item_catalog.db import DBSession
+from item_catalog.models import User, Category, Item
 
 categories = Category.query.all()
 

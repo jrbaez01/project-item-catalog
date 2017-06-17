@@ -1,1 +1,75 @@
-login
+{% extends "_base.html" %}
+
+{% block title %}{{ Login }}{% endblock %}
+
+{% block head %}
+  <!-- Include the outer base head content. -->
+  {{ super() }}
+
+  <!-- Include this page only elements in the head. -->
+  <!-- BEGIN google signin pre-requisites -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+  <!-- END google signin pre-requisites -->
+  
+  <script>
+    var CLIENT_ID = "405549194829-4ld9p3eis02opspfuqiob972cit0b180.apps.googleusercontent.com";
+
+    function start() {
+      gapi.load('auth2', function() {
+        auth2 = gapi.auth2.init({
+          client_id: CLIENT_ID,
+          // Scopes to request in addition to 'profile' and 'email'
+          // scope: 'profile email'
+        });
+      });
+    }
+
+    function signin() {
+      auth2.grantOfflineAccess().then(signInCallback);
+    }
+
+    function signInCallback(authResult) {
+      if (authResult['code']) {
+
+        // Hide the signin button now that the user is authorized, for example:
+        $('#signinButton').toggleClass( "is-loading" );
+
+        // Send the code to the server
+        $.ajax({
+          type: 'POST',
+          url: '/gconnect?state={{STATE}}',
+          // Always include an `X-Requested-With` header in every AJAX request,
+          // to protect against CSRF attacks.
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          contentType: 'application/octet-stream; charset=utf-8',
+          success: function(result) {
+            // Handle or verify the server response.
+            $('#signinButton').toggleClass( "is-loading disabled" );
+            console.log(result);
+            window.location.href = "/";
+          },
+          processData: false,
+          data: authResult['code']
+        });
+      } else {
+        // There was an error.
+      }
+    }
+  </script>
+{% endblock %}
+
+{% block content %}
+<div class="level">
+  <div class="level-item">
+    <a id="signinButton" onclick="signin();" class="button is-large is-primary">
+        <span class="icon is-medium">
+          <i class="fa fa-google"></i>
+        </span>
+        <span>Sign in with Google</span>
+    </a>
+  </div>
+</div>
+{% endblock %}

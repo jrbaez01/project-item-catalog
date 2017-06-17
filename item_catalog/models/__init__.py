@@ -9,7 +9,7 @@ class User(Base):
     id       = Column(Integer, Sequence('user_id_seq'), primary_key=True)
     name     = Column(String(250), nullable=False)
     email    = Column(String(250), nullable=False)
-    password = Column(String(250), nullable=False)
+    picture  = Column(String(250))
 
     def __repr__(self):
         return "<User(name='%s', email='%s', password='%s')>" % (
