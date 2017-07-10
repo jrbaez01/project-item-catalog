@@ -6,14 +6,14 @@
   <div class="field">
     <label class="label">Title</label>
     <p class="control">
-      <input class="input" type="text" placeholder="Insert Title" name="item_name">
+      <input class="input" type="text" placeholder="Insert Title" name="item_name" value="{{ item.name if item.name }}">
     </p>
   </div>
 
   <div class="field">
     <label class="label">Description</label>
     <p class="control">
-      <textarea class="textarea" placeholder="Insert description." name="item_desc"></textarea>
+      <textarea class="textarea" placeholder="Insert description." name="item_desc">{{ item.desc if item.desc }}</textarea>
     </p>
   </div>
 

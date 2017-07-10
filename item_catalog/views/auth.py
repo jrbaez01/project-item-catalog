@@ -23,6 +23,7 @@ CLIENT_ID = json.loads(
 
 @app.route('/login')
 def login():
+    # Create anti-forgery state token
     state = ''.join(
         random.choice(string.ascii_uppercase + string.digits)
         for x in xrange(32)
@@ -37,14 +38,17 @@ def gconnect():
     if request.method == 'POST':
         # Validate state token
         if request.args.get('state') != login_session['state']:
-            response = make_response(json.dumps('Invalid state parameter.'), 401)
+            response = make_response(json.dumps('Invalid state.'), 401)
             response.headers['Content-Type'] = 'application/json'
             return response
 
         # If this request does not have `X-Requested-With` header,
         # this could be a CSRF
         if not request.headers.get('X-Requested-With'):
-            response = make_response(json.dumps('This request does not have `X-Requested-With` header.'), 403)
+            response = make_response(
+                json.dumps('Request does not have `X-Requested-With` header.')
+                , 403
+            )
             response.headers['Content-Type'] = 'application/json'
             return response
 
@@ -80,7 +84,9 @@ def gconnect():
         gplus_id = credentials.id_token['sub']
         if result['user_id'] != gplus_id:
             response = make_response(
-                json.dumps("Token's user ID doesn't match given user ID."), 401)
+                json.dumps("Token's user ID doesn't match given user ID.")
+                , 401
+            )
             response.headers['Content-Type'] = 'application/json'
             return response
 
@@ -90,15 +96,19 @@ def gconnect():
             flash(
                 "You were already logged in as %s" % login_session['username'],
                 "info")
-            response = make_response(json.dumps('Current user is already connected.'),
-                                     200)
+            response = make_response(
+                json.dumps('Current user is already connected.')
+                , 200
+            )
             response.headers['Content-Type'] = 'application/json'
             return response
 
         # Verify that the access token is valid for this app.
         if result['issued_to'] != CLIENT_ID:
             response = make_response(
-                json.dumps("Token's client ID does not match app's."), 401)
+                json.dumps("Token's client ID does not match app's.")
+                , 401
+            )
             print "Token's client ID does not match app's."
             response.headers['Content-Type'] = 'application/json'
             return response
@@ -131,7 +141,9 @@ def gconnect():
             "success")
 
         response = make_response(
-                json.dumps("You are now logged in."), 200)
+            json.dumps("You are now logged in.")
+            , 200
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -165,6 +177,7 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
         del login_session['loggedin']
 
         flash(
@@ -172,6 +185,7 @@ def gdisconnect():
             "info")
     else:
         # For whatever reason, the given token was invalid.
+        # TODO: handle case when the token expire
         flash(
             "Failed to revoke token for given user.",
             "danger")
@@ -179,7 +193,6 @@ def gdisconnect():
 
 
 # User Helper Functions
-
 
 def createUser(login_session):
     newUser = User(
@@ -204,3 +217,4 @@ def getUserID(email):
         return user.id
     except:
         return None
+
