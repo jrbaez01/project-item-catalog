@@ -7,37 +7,46 @@
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.4.2/css/bulma.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
   {% endblock %}
 </head>
 <body>
   <header class="header">
-    <nav class="nav has-shadow">
-      <span class="nav-toggle">
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
-      <div class="nav-left">
-        <a href="/" class="nav-item">
+
+    <nav class="navbar has-shadow">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="/ ">
           <h1 class="title">CATALOG APP</h1>
         </a>
+
+        <div class="navbar-burger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
-      <div class="nav-right nav-menu">
-        <a class="nav-item is-tab is-hidden-tablet is-active">Home</a>
-        {% if session.loggedin %}
-        <a href="/gdisconnect" class="nav-item is-tab">
-          <figure class="image is-16x16" style="margin-right: 8px;">
-            <img src="{{ session.picture }}">
-          </figure>
-          {{ session.username }} (Logout)
-        </a>
-        {% else %}
-        <a href="/login" class="nav-item is-tab">Login</a>
-        {% endif %}
+
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <!-- navbar items -->
+        </div>
+
+        <div class="navbar-end">
+          {% if session.loggedin %}
+          <a href="/gdisconnect" class="navbar-item">
+            <figure class="image is-16x16" style="margin-right: 8px;">
+              <img src="{{ session.picture }}">
+            </figure>
+            {{ session.username }} (Logout)
+          </a>
+          {% else %}
+          <a href="/login" class="navbar-item">Login</a>
+          {% endif %}
+        </div>
       </div>
     </nav>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       <div class="section is-paddingless">
