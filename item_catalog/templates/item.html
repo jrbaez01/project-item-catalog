@@ -2,7 +2,7 @@
 {% block title %}{{ cat_name }} Items{% endblock %}
 
 {% block content %}
-
+<!-- 
 <div class="content">
   <span class="level is-mobile">
     <span class="level-left">
@@ -17,7 +17,23 @@
   <p>
     {{ item.desc }}
   </p>
-</div>
+</div> -->
+
+<article class="media">
+  <div class="media-content">
+      <p class="title is-3">
+        {{ item.name }}
+      </p>
+      <p>
+        {{ item.desc }}
+      </p>
+    </div>
+  <div class="media-right">
+    <p class="tag is-info">{{ cat_name }}</p>
+  </div>
+</article>
+
+<hr>
 
 {% if session['user_id'] == item.user_id %}
 <div class="level is-mobile">

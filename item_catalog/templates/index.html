@@ -32,29 +32,27 @@
           </div>
           {% endif %}
         </div>
-        <div class="columns is-multiline is-mobile">
+        <div class="columns is-multiline">
           {% for item in items %}
-          <div class="column">
-            <div class="box">
-              <div class="content">
-                <p>
-                  <span class="level is-mobile">
-                    <span class="level-left">
-                      <span class="level-item">
-                        <strong>{{ item[0].name }}</strong>
-                      </span>
-                    </span>
-                    <span class="level-ritht">
-                      <span class="level-item tag is-info">{{ item[1].name }}</span>
-                    </span>
-                  </span>
-                  {{ item[0].desc|truncate(50) }}
-                </p>
+          <div class="column is-12-tablet is-6-desktop">
+            <hr>
+
+            <article class="media">
+              <div class="media-content">
+                <a class="" href="/catalog/{{ item[1].name }}/{{ item[0].name }}">
+                  <p class="title is-3">
+                    {{ item[0].name }}
+                  </p>
+                  <p class="subtitle">
+                    {{ item[0].desc|truncate(50) }}
+                  </p>
+                </div>
+              </a>
+              <div class="media-right">
+                <p class="tag is-info">{{ item[1].name }}</p>
               </div>
-              <div class="level">
-                <a class="level-item button is-primary is-outlined" href="/catalog/{{ item[1].name }}/{{ item[0].name }}">Open</a>
-              </div>
-            </div>
+            </article>
+
           </div>
           {% endfor %}
         </div>
