@@ -46,8 +46,8 @@ def gconnect():
         # this could be a CSRF
         if not request.headers.get('X-Requested-With'):
             response = make_response(
-                json.dumps('Request does not have `X-Requested-With` header.')
-                , 403
+                json.dumps('Request does not have `X-Requested-With` header.'),
+                403
             )
             response.headers['Content-Type'] = 'application/json'
             return response
@@ -64,7 +64,9 @@ def gconnect():
                 auth_code)
         except client.FlowExchangeError:
             response = make_response(
-                json.dumps('Failed to upgrade the authorization code.'), 401)
+                json.dumps('Failed to upgrade the authorization code.'),
+                401
+            )
             response.headers['Content-Type'] = 'application/json'
             return response
 
@@ -84,8 +86,7 @@ def gconnect():
         gplus_id = credentials.id_token['sub']
         if result['user_id'] != gplus_id:
             response = make_response(
-                json.dumps("Token's user ID doesn't match given user ID.")
-                , 401
+                json.dumps("Token's user ID doesn't match given user ID."), 401
             )
             response.headers['Content-Type'] = 'application/json'
             return response
@@ -97,8 +98,7 @@ def gconnect():
                 "You were already logged in as %s" % login_session['username'],
                 "info")
             response = make_response(
-                json.dumps('Current user is already connected.')
-                , 200
+                json.dumps('Current user is already connected.'), 200
             )
             response.headers['Content-Type'] = 'application/json'
             return response
@@ -106,8 +106,7 @@ def gconnect():
         # Verify that the access token is valid for this app.
         if result['issued_to'] != CLIENT_ID:
             response = make_response(
-                json.dumps("Token's client ID does not match app's.")
-                , 401
+                json.dumps("Token's client ID does not match app's."), 401
             )
             print "Token's client ID does not match app's."
             response.headers['Content-Type'] = 'application/json'
@@ -132,7 +131,8 @@ def gconnect():
         # See if a user exists, if it doesn't make a new one
         local_user_id = getUserID(login_session['email'])
         if not local_user_id:
-          local_user_id = createUser(login_session)
+            local_user_id = createUser(login_session)
+
         login_session['user_id'] = local_user_id
         login_session['loggedin'] = True
 
@@ -141,13 +141,12 @@ def gconnect():
             "success")
 
         response = make_response(
-            json.dumps("You are now logged in.")
-            , 200
+            json.dumps("You are now logged in."), 200
         )
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    return  redirect('/login')
+    return redirect('/login')
 
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
@@ -217,4 +216,3 @@ def getUserID(email):
         return user.id
     except:
         return None
-
