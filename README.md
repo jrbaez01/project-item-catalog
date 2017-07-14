@@ -4,9 +4,13 @@ With this project I learned to develop an application that provides a list of it
 ## Dependencies
 In order to be able to run the project you will need to have installed:
  - Python 2.7
+ - Virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 ## How to run
-1. Keep calm my friend.
+1. Install virtualenv if you have not. ```$ [sudo] pip install virtualenv```
 2. Clone the source code in your local envarioment
-3. Enter to the code directory and run the command: ```. installdev```
-4. Now you should be ready to run the server: ```flask run```
+3. Enter to the code directory and create a virtual envarioment. ```virtualenv venv```
+4. Activate the virtual envatioment. ```$ . venv/bin/activate```
+5. Execute the bash instructions on the installdev file: ```$ . installdev```
+6. Now you should be ready to run the server: ```$ flask run```
+7. Open the app on http://localhost:5000/
