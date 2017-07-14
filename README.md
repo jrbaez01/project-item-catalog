@@ -13,4 +13,7 @@ In order to be able to run the project you will need to have installed:
 4. Activate the virtual envatioment. ```$ . venv/bin/activate```
 5. Execute the bash instructions on the installdev file: ```$ . installdev```
 6. Now you should be ready to run the server: ```$ flask run```
-7. Open the app on http://localhost:5000/
+
+Open the app on http://localhost:5000/
+
+A JSON endpoint is located at http://localhost:5000/catalog.json
