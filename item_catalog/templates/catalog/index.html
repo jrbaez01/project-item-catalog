@@ -20,15 +20,16 @@
         </aside>
       </div>
       <div class="column">
-        <div class="level is-mobile">
+        <div class="level">
           <div class="level-left">
             <h2 class="title is-2">
               {{ cat_name }} Items ({{ items|length }} items)
             </h2>
           </div>
+          <br>
           {% if session.loggedin %}
           <div class="level-ritht">
-            <a class="level-item button is-primary" href="{{ url_for('item_new', cat_name=cat_name) }}">New</a>
+            <a class="level-item button is-primary" href="{{ url_for('catalog.item_new', cat_name=cat_name) }}">New</a>
           </div>
           {% endif %}
         </div>

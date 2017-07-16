@@ -1,14 +1,17 @@
 from flask import render_template, request, redirect, jsonify, url_for, flash
 from flask import session as login_session
+from flask import Blueprint
 from functools import wraps
-from item_catalog.flask_app import app
+
 from item_catalog.db import DBSession
-from item_catalog.models import User, Category, Item
+from .models import User, Category, Item
 
-categories = Category.query.all()
+# Define the blueprint: 'catalog', set its url prefix: app.url/catalog
+bp = Blueprint('catalog', __name__, url_prefix='/catalog')
 
-
-# Helper functions
+# ============================================================================
+# Helpers
+# ============================================================================
 
 
 def login_required(f):
@@ -24,58 +27,120 @@ def login_required(f):
     return decorated_function
 
 
-# views functions
+# Get all categories to be used later.
+categories = DBSession.query(Category).all()
 
 
-@app.route('/')
-@app.route('/catalog')
-def catalog():
+# ============================================================================
+# Controlers
+# ============================================================================
+
+
+@bp.route('/')
+def index():
     items = DBSession.query(Item, Category)\
                      .join(Category)\
                      .order_by(Item.id.desc())[0:10]
-    return render_template('index.html',
+    return render_template('catalog/index.html',
                            cat_name='Latest',
                            categories=categories,
                            items=items)
 
 
-@app.route('/catalog.json')
-def catalog_json():
-    output = []
-    for category in categories:
-        items = DBSession.query(Item).filter_by(category_id=category.id).all()
-        serialized_category = category.serialize
-        serialized_category['items'] = [i.serialize for i in items]
-        output.append(serialized_category)
-    return jsonify(categories=output)
-
-
-@app.route('/catalog/<cat_name>/')
+@bp.route('/<cat_name>/')
 def category(cat_name):
 
     items = DBSession.query(Item, Category)\
                             .join(Category)\
                             .filter(Category.name == cat_name)\
                             .order_by(Item.id.desc()).all()
-    return render_template('index.html',
+    return render_template('catalog/index.html',
                            cat_name=cat_name,
                            categories=categories,
                            items=items)
 
 
-@app.route('/catalog/<cat_name>/<item_name>')
+@bp.route('/<cat_name>/<item_name>')
 def item(cat_name, item_name):
     item = DBSession.query(Item)\
                            .join(Category)\
                            .filter(Category.name == cat_name)\
-                           .filter(Item.name == item_name).one()
-    return render_template('item.html',
+                           .filter(Item.name == item_name).one_or_none()
+    if item is None:
+        return render_template('404.html'), 404
+
+    return render_template('catalog/item.html',
                            cat_name=cat_name,
                            categories=categories,
                            item=item)
 
 
-@app.route('/catalog/new', methods=['GET', 'POST'])
+@bp.route('/<cat_name>/<item_name>/edit', methods=['GET', 'POST'])
+@login_required
+def item_edit(cat_name, item_name):
+    item = DBSession.query(Item)\
+                            .join(Category)\
+                            .filter(Category.name == cat_name)\
+                            .filter(Item.name == item_name).one()
+
+    if login_session['user_id'] != item.user_id:
+        flash(
+            "Hey!, if you are not the owner of a item you CANNOT EDIT it.",
+            "warning"
+        )
+        return redirect(url_for('catalog.item',
+                                cat_name=cat_name,
+                                item_name=item_name))
+
+    if request.method == 'POST':
+        item_name = request.form['item_name']
+        cat_id, cat_name = request.form['cat'].split('|')
+        item_desc = request.form['item_desc']
+
+        if item_name == '' or item_desc == '':
+            flash(
+                "All fields need to be filled with text.",
+                "warning"
+            )
+            return render_template('catalog/item_edit.html',
+                                   cat_name=cat_name,
+                                   categories=categories,
+                                   item={'name': item_name,
+                                         'desc': item_desc})
+
+        try:
+            item.category_id = cat_id
+            item.name = item_name
+            item.desc = item_desc
+            DBSession.commit()
+        except Exception as e:
+            DBSession.rollback()
+            flash(
+                e.message,
+                "danger"
+            )
+            return render_template('catalog/item_edit.html',
+                                   cat_name=cat_name,
+                                   categories=categories,
+                                   item={'name': item_name,
+                                         'desc': item_desc})
+        else:
+            flash(
+                "The ITEM WAS EDITED successfully.",
+                "success"
+            )
+            return redirect(url_for('catalog.item',
+                                    cat_name=cat_name,
+                                    item_name=item_name))
+
+    else:
+        return render_template('catalog/item_edit.html',
+                               cat_name=cat_name,
+                               categories=categories,
+                               item=item)
+
+
+@bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def item_new():
     item = Item()
@@ -89,7 +154,7 @@ def item_new():
                 "All fields need to be filled with text.",
                 "warning"
             )
-            return render_template('item_new.html',
+            return render_template('catalog/item_new.html',
                                    cat_name=cat_name,
                                    categories=categories,
                                    item={'name': item_name,
@@ -108,7 +173,7 @@ def item_new():
                 "danger"
             )
             DBSession.rollback()
-            return render_template('item_new.html',
+            return render_template('catalog/item_new.html',
                                    cat_name=cat_name,
                                    categories=categories,
                                    item=item)
@@ -117,82 +182,17 @@ def item_new():
                 "The ITEM WAS CREATED successfully.",
                 "success"
             )
-            return redirect(url_for('item',
+            return redirect(url_for('catalog.item',
                                     cat_name=cat_name,
                                     item_name=item_name))
     else:
-        return render_template('item_new.html',
+        return render_template('catalog/item_new.html',
                                cat_name=request.args.get('cat_name', ''),
                                categories=categories,
                                item=item)
 
 
-@app.route('/catalog/<cat_name>/<item_name>/edit', methods=['GET', 'POST'])
-@login_required
-def item_edit(cat_name, item_name):
-    item = DBSession.query(Item)\
-                            .join(Category)\
-                            .filter(Category.name == cat_name)\
-                            .filter(Item.name == item_name).one()
-
-    if login_session['user_id'] != item.user_id:
-        flash(
-            "Hey!, if you are not the owner of a item you CANNOT EDIT it.",
-            "warning"
-        )
-        return redirect(url_for('item',
-                                cat_name=cat_name,
-                                item_name=item_name))
-
-    if request.method == 'POST':
-        item_name = request.form['item_name']
-        cat_id, cat_name = request.form['cat'].split('|')
-        item_desc = request.form['item_desc']
-
-        if item_name == '' or item_desc == '':
-            flash(
-                "All fields need to be filled with text.",
-                "warning"
-            )
-            return render_template('item_edit.html',
-                                   cat_name=cat_name,
-                                   categories=categories,
-                                   item={'name': item_name,
-                                         'desc': item_desc})
-
-        try:
-            item.category_id = cat_id
-            item.name = item_name
-            item.desc = item_desc
-            DBSession.commit()
-        except Exception as e:
-            DBSession.rollback()
-            flash(
-                e.message,
-                "danger"
-            )
-            return render_template('item_edit.html',
-                                   cat_name=cat_name,
-                                   categories=categories,
-                                   item={'name': item_name,
-                                         'desc': item_desc})
-        else:
-            flash(
-                "The ITEM WAS EDITED successfully.",
-                "success"
-            )
-            return redirect(url_for('item',
-                                    cat_name=cat_name,
-                                    item_name=item_name))
-
-    else:
-        return render_template('item_edit.html',
-                               cat_name=cat_name,
-                               categories=categories,
-                               item=item)
-
-
-@app.route('/catalog/<cat_name>/<item_name>/remove', methods=['GET', 'POST'])
+@bp.route('/<cat_name>/<item_name>/remove', methods=['GET', 'POST'])
 @login_required
 def item_remove(cat_name, item_name):
     item = DBSession.query(Item)\
@@ -205,7 +205,7 @@ def item_remove(cat_name, item_name):
             "Hey!, if you are not the owner of a item you CANNOT REMOVE it.",
             "warning"
         )
-        return redirect(url_for('item',
+        return redirect(url_for('catalog.item',
                                 cat_name=cat_name,
                                 item_name=item_name))
 
@@ -216,9 +216,9 @@ def item_remove(cat_name, item_name):
             "The ITEM WAS REMOVED successfully.",
             "success"
         )
-        return redirect(url_for('category', cat_name=cat_name))
+        return redirect(url_for('catalog.category', cat_name=cat_name))
     else:
-        return render_template('item_remove.html',
+        return render_template('catalog/item_remove.html',
                                cat_name=cat_name,
                                categories=categories,
                                item=item)

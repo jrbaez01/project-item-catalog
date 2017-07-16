@@ -36,10 +36,10 @@
       <button class="button is-primary">Submit</button>
     </p>
     <p class="control">
-      <a class="button is-link" href="{{ url_for('item', cat_name=cat_name, item_name=item.name) }}">Cancel</a>
+      <a class="button is-link" href="{{ url_for('catalog.item', cat_name=cat_name, item_name=item.name) }}">Cancel</a>
     </p>
     <p class="control">
-      <a class="button is-danger" href="{{ url_for('item_remove', cat_name=cat_name, item_name=item.name) }}">Delete</a>
+      <a class="button is-danger" href="{{ url_for('catalog.item_remove', cat_name=cat_name, item_name=item.name) }}">Delete</a>
     </p>
   </div>
 </form>

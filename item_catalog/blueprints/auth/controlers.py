@@ -1,6 +1,7 @@
 from flask import render_template, request, jsonify, url_for, flash, abort
 from flask import make_response, redirect
 from flask import session as login_session
+from flask import Blueprint
 from oauth2client import client
 import httplib2
 import requests
@@ -8,9 +9,16 @@ import random
 import string
 import json
 
-from item_catalog.flask_app import app
 from item_catalog.db import DBSession
-from item_catalog.models import User
+from .models import User
+
+# Define the blueprint: 'auth', set its url prefix: app.url/auth
+bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+# ============================================================================
+# Helpers
+# ============================================================================
 
 # Set path to the Web application client_secret_*.json file you
 # downloaded from the Google API Console:
@@ -21,7 +29,37 @@ CLIENT_ID = json.loads(
     open(CLIENT_SECRET_FILE, 'r').read())['web']['client_id']
 
 
-@app.route('/login')
+def createUser(login_session):
+    newUser = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture']
+    )
+    DBSession.add(newUser)
+    DBSession.commit()
+    user = DBSession.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = DBSession.query(User).filter_by(id=user_id).one_or_none()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = DBSession.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+# ============================================================================
+# Controlers
+# ============================================================================
+
+
+@bp.route('/login')
 def login():
     # Create anti-forgery state token
     state = ''.join(
@@ -29,10 +67,10 @@ def login():
         for x in xrange(32)
     )
     login_session['state'] = state
-    return render_template('login.html', STATE=state)
+    return render_template('auth/login.html', STATE=state)
 
 
-@app.route('/gconnect', methods=['GET', 'POST'])
+@bp.route('/gconnect', methods=['GET', 'POST'])
 def gconnect():
     # (Receive auth_code by HTTPS POST)
     if request.method == 'POST':
@@ -150,7 +188,7 @@ def gconnect():
 
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
-@app.route('/gdisconnect')
+@bp.route('/gdisconnect')
 def gdisconnect():
     # return login_session.get('credentials')
     # Only disconnect a connected user.
@@ -189,30 +227,3 @@ def gdisconnect():
             "Failed to revoke token for given user.",
             "danger")
     return redirect('/')
-
-
-# User Helper Functions
-
-def createUser(login_session):
-    newUser = User(
-        name=login_session['username'],
-        email=login_session['email'],
-        picture=login_session['picture']
-    )
-    DBSession.add(newUser)
-    DBSession.commit()
-    user = DBSession.query(User).filter_by(email=login_session['email']).one()
-    return user.id
-
-
-def getUserInfo(user_id):
-    user = DBSession.query(User).filter_by(id=user_id).one()
-    return user
-
-
-def getUserID(email):
-    try:
-        user = DBSession.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None

@@ -1,20 +1,5 @@
-from sqlalchemy import Column, Integer, String, Sequence, ForeignKey
-from sqlalchemy.orm import relationship
-
-from item_catalog.db import Base
-
-
-class User(Base):
-    __tablename__ = 'user'
-
-    id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    name = Column(String(250), nullable=False)
-    email = Column(String(250), nullable=False, unique=True)
-    picture = Column(String(250))
-
-    def __repr__(self):
-        """Return a string representation. Useful for debugging."""
-        return "<User(name='%s', email='%s')>" % (self.name, self.email)
+from item_catalog.db import *
+from item_catalog.blueprints.auth.models import User
 
 
 class Category(Base):

@@ -22,8 +22,8 @@
 {% if session['user_id'] == item.user_id %}
 <div class="level is-mobile">
   <span class="level-left">
-    <a class="level-item button is-info" href="{{ url_for('item_edit', cat_name=cat_name, item_name=item.name) }}">Edit</a>
-    <a class="level-item button is-danger" href="{{ url_for('item_remove', cat_name=cat_name, item_name=item.name) }}">Delete</a>
+    <a class="level-item button is-info" href="{{ url_for('catalog.item_edit', cat_name=cat_name, item_name=item.name) }}">Edit</a>
+    <a class="level-item button is-danger" href="{{ url_for('catalog.item_remove', cat_name=cat_name, item_name=item.name) }}">Delete</a>
   </span>
 </div>
 {% endif %}
